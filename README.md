@@ -31,5 +31,6 @@ Parametric OpenSCAD prototype case for:
 
 ## Notes
 - V1 is intentionally simple and rigid for calibration stability.
+- Camera clamp **V2 mount update**: front alignment pocket + explicit M2 clearance holes + rear M2 heat-set insert pockets.
 - For NDVI, lower parallax is preferred over large baseline; 40mm is a practical starting point.
 - If alignment is difficult, try 35mm baseline by changing one parameter.

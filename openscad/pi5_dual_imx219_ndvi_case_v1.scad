@@ -25,7 +25,13 @@ camera_board_w = 25;
 camera_board_h = 24;
 camera_hole_pitch_x = 21;
 camera_hole_pitch_y = 12.5;
-camera_hole_d = 2.2;  // M2 clearance
+camera_hole_d = 2.2;      // M2 clearance
+camera_insert_d = 3.4;   // M2 heat-set insert pocket (adjust for your insert)
+camera_insert_h = 4.0;
+camera_clamp_w = 32;
+camera_clamp_t = 12;
+camera_clamp_h = 32;
+camera_pocket_depth = 4.2;
 cam_bar_w = 18;
 cam_bar_t = 6;
 cam_bar_h = 36;
@@ -101,18 +107,36 @@ module camera_clamp(sign=1){
   xoff = sign * camera_baseline/2;
   translate([xoff, base_w/2 - cam_bar_w/2 - 2, base_h + cam_rise + cam_bar_t/2 + camera_board_h/2 + 2])
   difference(){
-    cube([30, 8, 30], center=true);
+    // clamp body (front face is +Y)
+    cube([camera_clamp_w, camera_clamp_t, camera_clamp_h], center=true);
 
-    // cavity for camera board
-    cube([camera_board_w+0.8, 9, camera_board_h+0.8], center=true);
+    // front alignment pocket for IMX219 board (leaves solid back wall)
+    translate([0, (camera_clamp_t - camera_pocket_depth)/2, 0])
+      cube([camera_board_w + 0.6, camera_pocket_depth, camera_board_h + 0.6], center=true);
 
-    // camera mounting holes (M2)
+    // lens aperture window
+    translate([0, (camera_clamp_t - camera_pocket_depth)/2, 0])
+      cube([9, camera_pocket_depth + 0.2, 9], center=true);
+
+    // camera mounting holes:
+    // - front M2 clearance
+    // - rear heat-set insert pockets (thread-in target)
     for(x=[-camera_hole_pitch_x/2, camera_hole_pitch_x/2])
-      for(z=[-camera_hole_pitch_y/2, camera_hole_pitch_y/2])
-        translate([x,0,z]) rotate([90,0,0]) cylinder(d=camera_hole_d, h=10, center=true);
+      for(z=[-camera_hole_pitch_y/2, camera_hole_pitch_y/2]){
+        // clearance from front toward middle
+        translate([x, +1.5, z])
+          rotate([90,0,0]) cylinder(d=camera_hole_d, h=9.0, center=true);
+        // insert pocket near rear face
+        translate([x, -4.0, z])
+          rotate([90,0,0]) cylinder(d=camera_insert_d, h=camera_insert_h, center=true);
+      }
 
-    // through-bolt to bar
+    // through-bolt to camera bar (M3)
     translate([0,-4,0]) rotate([90,0,0]) cylinder(d=3.2, h=20, center=true);
+
+    // CSI ribbon relief notch
+    translate([0, +5.0, -camera_board_h/2 + 2.5])
+      cube([12, 4.0, 4.0], center=true);
   }
 }
 
